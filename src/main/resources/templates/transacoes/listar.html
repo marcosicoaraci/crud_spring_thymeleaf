@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Área do usuário</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+
+<div th:if="${erroMensagem}" class="alert alert-warning alert-dismissible fade show" role="alert">
+    <span th:text="${erroMensagem}">Erro genérico</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<h2 class="mb-3">Bem vindo <span th:text="${usuarioLogado.nome}"></span></h2>
+<h2 class="mb-3">Seu saldo é de R$: <span th:text="${usuarioLogado.saldo}"></span></h2>
+<div class="row align-items-start">
+    <div class="col">
+        <h3 class="mb-3">Agência: <span th:text="${usuarioLogado.agencia}"></span></h3>
+    </div>
+    <div class="col">
+        <h3 class="mb-3">Conta: <span th:text="${usuarioLogado.numeroConta}"></span></h3>
+    </div>
+    <div class="col"></div>
+    <div class="col"></div>
+    <div class="col"></div>
+</div>
+<div class="row align-items-start">
+    <div class="col">
+        <a class="btn btn-outline-primary mb-3 form-control " data-bs-toggle="modal" data-bs-target="#modalDeposito">Depósito</a>
+    </div>
+    <div class="col">
+        <a class="btn btn-outline-primary mb-3 form-control" data-bs-toggle="modal" data-bs-target="#modalSaque">Saque</a>
+    </div>
+    <div class="col">
+        <a class="btn btn btn-outline-primary mb-3 form-control" data-bs-toggle="modal" data-bs-target="#modalTransferencia">Transferência</a>
+    </div>
+    <div class="col"></div>
+    <div class="col">
+        <form th:action="@{/logout}" method="post" >
+            <button type="submit" class="btn btn-danger mb-3 form-control" title="Logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+            </button>
+        </form>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        <h3 align="center">Histórico de transações</h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped" title="Histórico de Transações">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Valor R$</th>
+                <th>Tipo Transação</th>
+                <th>Conta origem</th>
+                <th>Conta destino</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${transacoes}">
+                <td th:text="${t.idTransacao}"></td>
+                <td th:text="${t.valor}"></td>
+                <td th:text="${t.tipo}"></td>
+                <td th:text="${t.idContaOrigem != null ? t.idContaOrigem.numeroConta : '0'}"></td>
+                <td th:text="${t.idContaDestino != null ? t.idContaDestino.numeroConta : '0'}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- paginação -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/transacoes(page=${currentPage-1})}">Anterior</a>
+                </li>
+
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(0, totalPages-1)}"
+                    th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/transacoes(page=${i})}" th:text="${i+1}"></a>
+                </li>
+
+                <li class="page-item" th:classappend="${currentPage == totalPages-1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/transacoes(page=${currentPage+1})}">Próxima</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+<br/>
+
+<div class="modal fade" id="modalDeposito" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Depósito</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/transacoes/depositar}" th:object="${transacao}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="number" th:field="*{valor}" class="form-control" id="valor" placeholder="Digite o valor a ser depositado">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalSaque" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel2" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel2">Saque</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/transacoes/efetuar-saque}" th:object="${transacao}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="number" th:field="*{valor}" class="form-control" id="valorSaque" placeholder="Digite o valor do saque">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalTransferencia" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel3" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel3">Transferencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/transacoes/efetuar-transferencia}" th:object="${transacao}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="number" th:field="*{valor}" class="form-control" id="valorTransferencia" placeholder="Digite o valor da transferencia">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Selecione a conta</label>
+                        <select th:field="*{idContaDestino}" class="form-select">
+                            <option value="">Selecione...</option>
+                            <option th:each="conta : ${contas}"
+                                    th:value="${conta.idConta}"
+                                    th:text="${conta.numeroConta}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
