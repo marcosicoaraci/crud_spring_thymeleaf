@@ -87,4 +87,9 @@ public class ContaServiceImpl implements IContaService {
     public Conta obterPorAgenciaeConta(String agencia, String conta) {
         return this.contaRepository.obterPorAgenciaeConta(agencia,conta);
     }
+
+    @Override
+    public List<Conta> listarTodos() {
+        return (List<Conta>) this.contaRepository.findAll();
+    }
 }

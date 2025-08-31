@@ -3,6 +3,7 @@ package br.com.mrchagas.controller;
 import br.com.mrchagas.dto.request.TransacaoRequestDTO;
 import br.com.mrchagas.dto.response.ContaResponseDTO;
 import br.com.mrchagas.dto.response.TransacaoResponseDTO;
+import br.com.mrchagas.entity.Conta;
 import br.com.mrchagas.interfaces.ClienteContaDTO;
 import br.com.mrchagas.service.ClienteServiceImpl;
 import br.com.mrchagas.service.ContaServiceImpl;
@@ -52,9 +53,10 @@ public class TransacaoController {
         return "transacoes/listar";
     }
 
-    private List<ContaResponseDTO> listarContas(){
-        var pageable = PageRequest.of(0, 100);
-        return this.contaSrv.listarTodos(pageable);
+    private List<Conta> listarContas(){
+        return this.contaSrv.listarTodos();
+//        var pageable = PageRequest.of(0, 100);
+//        return this.contaSrv.listarTodos(pageable);
     }
 
     @GetMapping("/novo")

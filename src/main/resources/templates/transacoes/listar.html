@@ -155,7 +155,7 @@
                             <option value="">Selecione...</option>
                             <option th:each="conta : ${contas}"
                                     th:value="${conta.idConta}"
-                                    th:text="${conta.numeroConta}">
+                                    th:text="${conta.numeroConta}+' - '+${conta.idCliente.nome} ">
                             </option>
                         </select>
                     </div>
