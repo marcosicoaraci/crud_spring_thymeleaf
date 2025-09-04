@@ -3,6 +3,7 @@ package br.com.mrchagas.service;
 import br.com.mrchagas.dto.request.ClienteRequestDTO;
 import br.com.mrchagas.dto.response.ClienteResponseDTO;
 import br.com.mrchagas.entity.Cliente;
+import br.com.mrchagas.entity.Conta;
 import br.com.mrchagas.exceptions.ObjetoNaoEncontradoException;
 import br.com.mrchagas.interfaces.ClienteContaDTO;
 import br.com.mrchagas.interfaces.IClienteService;
@@ -14,14 +15,18 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Objects.nonNull;
+
 @Service
 public class ClienteServiceImpl implements IClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final ContaServiceImpl contaSrv;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    public ClienteServiceImpl(ClienteRepository clienteRepository) {
+    public ClienteServiceImpl(ClienteRepository clienteRepository, ContaServiceImpl contaSrv) {
         this.clienteRepository = clienteRepository;
+        this.contaSrv = contaSrv;
     }
 
     @Override
@@ -72,7 +77,13 @@ public class ClienteServiceImpl implements IClienteService {
     @Override
     public void excluir(Integer id) {
         try {
-            clienteRepository.deleteById(id);
+            Cliente cli = this.clienteRepository.findById(id).get();
+            cli.setStatusCliente(false);
+            this.clienteRepository.save(cli);
+            Conta conta = this.contaSrv.obterPorIdCliente(id);
+            if (nonNull(conta)) {
+                this.contaSrv.excluir(conta.getIdConta());
+            }
         }catch (Exception e){
             throw new ObjetoNaoEncontradoException("Erro ao excluir objeto: "+e);
         }
@@ -82,6 +93,7 @@ public class ClienteServiceImpl implements IClienteService {
     private ClienteResponseDTO saveOrUpdate(ClienteRequestDTO requestDTO){
         try {
             var cliente = modelMapper.map(requestDTO, Cliente.class);
+            cliente.setStatusCliente(true);
             clienteRepository.save(cliente);
             return modelMapper.map(cliente, ClienteResponseDTO.class);
         }catch (Exception e){

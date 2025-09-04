@@ -42,6 +42,8 @@ public class Cliente implements Serializable {
     @Size(max = 100)
     @Column(name = "email")
     private String email;
+    @Column(name = "status_cliente")
+    private Boolean statusCliente;
 
 
 }

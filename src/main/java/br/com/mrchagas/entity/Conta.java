@@ -44,5 +44,8 @@ public class Conta implements Serializable {
     @JoinColumn(name = "id_cliente", referencedColumnName = "id_cliente")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Cliente idCliente;
+    @Column(name = "status_conta")
+    private Boolean statusConta;
+
 
 }

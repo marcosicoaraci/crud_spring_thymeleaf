@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface IContaService extends IGenericService<ContaRequestDTO, ContaResponseDTO>{
     Conta obterPorAgenciaeConta(String agencia, String conta);
+    Conta obterPorIdCliente(Integer idCliente);
     List<Conta> listarTodos();
 }

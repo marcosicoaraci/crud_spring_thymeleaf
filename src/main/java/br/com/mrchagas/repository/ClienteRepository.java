@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface ClienteRepository extends CrudRepository<Cliente, Integer> {
 
-    @Query("select c from Cliente c ORDER BY c.idCliente DESC")
+    @Query("select c from Cliente c WHERE c.statusCliente = true ORDER BY c.idCliente DESC")
     List<Cliente> listar(Pageable pageable);
 
     @Query(value = "SELECT cl.nome as nome, cl.email as email, cl.cpf as cpf, " +
